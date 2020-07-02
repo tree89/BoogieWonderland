@@ -13,7 +13,7 @@ def Conv(x, filters, kernel_size, strides, padding='same', activation='relu'):
     return x
 
 
-def Alex(x, is_classifier=False):
+def Alexnet(x, is_classifier=False):
     
     x = Conv(x, 96, 11, strides=4, padding='valid')
     x = MaxPooling2D(pool_size=(3, 3), strides=2, padding='valid')(x)
@@ -39,5 +39,5 @@ def Alex(x, is_classifier=False):
 
 if __name__ == "__main__":
     inputs = Input(shape=(224, 224, 3))
-    Base_model = Model(inputs, Alex(inputs, True))
+    Base_model = Model(inputs, Alexnet(inputs, True))
     print(Base_model.summary())
