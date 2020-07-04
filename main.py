@@ -1,37 +1,43 @@
-# PYTHONPATH=. python main.py --backbone Alexnet --task classification --dataset cifar10 --batch_size 1 --epoch 1
+# PYTHONPATH=. python main.py --config=configs/classification_test.json
 
+import os
+import json
 import argparse
+import tensorflow as tf
+
 from core.backbones import *
 from core.utils.data_loader import load_data
-#from core.utils.trainer import load_trainer  
-
-from tensorflow.keras.layers import Input
-from tensorflow.keras.models import Model
+from core.utils.modeler import Modeler  
 
 ap = argparse.ArgumentParser()
-ap.add_argument("--backbone", required=True, help="Choose backbone model")
-ap.add_argument("--task", required=True, help="Choose task type")
-ap.add_argument("--dataset", required=True, help="Choose dataset")
-ap.add_argument("--batch_size", required=True, help="Set batch size")
-ap.add_argument("--epoch", required=True, help="Set epoch")
-ap.add_argument("--input_shape", required=False, help="Set input shape")
+ap.add_argument("--config", required=True, help="Path of configs file")
 
 args = vars(ap.parse_args())
-model_name = args["backbone"]
-task_type = args["task"]
-dataset = args["dataset"]
-batch_size = int(args["batch_size"])
-epoch = int(args["epoch"])
-input_shape = list(args["input_shape"].split(","))
+
+config_path = args["config"]
+
+f = open(config_path, 'r')
+configs = json.load(f)
+
+model_name = configs["model_name"]
+task_type = configs["task"]
+num_class = configs["num_class"]
+dataset = configs["dataset"]
+batch_size = configs["batch_size"]
+epoch = configs["epochs"]
+input_shape = configs["input_shape"]
 h = input_shape[0]
 w = input_shape[1]
 c = input_shape[2]
+save_path = configs["save_path"]
+load_model = configs["load_model"]
+
+if not(os.path.isdir(save_path)):
+    os.makedirs(os.path.join(save_path))
 
 model_dict = {"Alexnet", "vgg8"}
 task_name = {"classification", "detection"}
 dataset_name = {"cifar10"}
-
-#amc_method = getattr(backbones, model_name)
 
 
 def main():
@@ -42,10 +48,20 @@ def main():
     assert epoch > 0, 'Epoch must be lager than 1'
     
     train_ds, val_ds = load_data(dataset, batch_size)
-     
-    model = load_trainer(model_name, task_type, input_shape=[h, w, c])
-    print(input_shape)
-    print(type(input_shape))
+    load_model = False
+    if load_model:
+        model = tf.keras.models.load_model(load_model)
+        print(model.summary())
+    else:
+        modeler = Modeler(model_name, task_type, num_class, [h, w, c])
+        model = modeler.make_model()  
+        print(model.summary())
+        
+    if task_type == "classification":
+        model.compile(optimizer='adam',
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+        model.fit(train_ds, batch_size=batch_size, epochs = epoch)
 
 if __name__ == "__main__":
     main()

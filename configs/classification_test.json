@@ -1,0 +1,11 @@
+{
+  "model_name": "vgg8",
+  "task": "classification",
+  "num_class": 10,
+  "dataset": "cifar10",
+  "input_shape": [32,32 ,3],
+  "batch_size": 32,
+  "epochs": 1,
+  "save_path": "saved_models",
+  "load_model": "test_model.h5"
+}
