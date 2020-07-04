@@ -37,8 +37,12 @@ def load_data(dataset, batch_size):
 if __name__ == "__main__":
     x_train, y_train, x_test, y_test = load_cifar10()
     print(x_train.shape, y_train.shape)
-    train_ds, val_ds = transform_dataset(x_train, y_train, x_test, y_test, 32)
-    
-    for image, label in train_ds.take(1):
-        print(label)
+    train_ds, val_ds = transform_dataset(x_train, y_train, x_test, y_test, 64)
+    print(dir(train_ds))
+    cnt = 0
+    for obj in train_ds:
+        cnt += 1
+    print(cnt)
+    for obj in train_ds.take(1):
+        print(obj[0].shape[0])
         
