@@ -1,2 +1,4 @@
-# 1. write configuration class, it hold every information about configuration
-# put main()'s assertion to configuration class
+# 1. load cifar 100
+# 2. load mnist
+# 3. fashion_mnist
+# 4. custom_dataset - folder/classname, tfrecord
